@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>유아 디지털 역량 설문지</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: '맑은 고딕', 'Malgun Gothic', sans-serif; background: #f1f5f9; color: #1e293b; font-size: 15px; }
+
+.top-bar { background: #1d4ed8; color: #fff; padding: 12px 20px; text-align: center; font-size: 14px; }
+
+.container { max-width: 900px; margin: 24px auto; padding: 0 16px 60px; }
+.card { background: #fff; border-radius: 12px; box-shadow: 0 1px 6px rgba(0,0,0,.08); padding: 28px; margin-bottom: 20px; }
+.card h2 { font-size: 18px; color: #1d4ed8; border-bottom: 2px solid #dbeafe; padding-bottom: 10px; margin-bottom: 20px; }
+
+/* 안내 박스 */
+.notice-box { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 16px; font-size: 13px; color: #92400e; line-height: 1.8; margin-bottom: 20px; }
+.notice-box p { margin-bottom: 4px; }
+
+/* 탭 */
+.tabs { display: flex; background: #fff; border-radius: 12px 12px 0 0; overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,.08); }
+.tab-btn { flex: 1; padding: 16px 8px; text-align: center; background: #f8fafc; border: none; cursor: pointer;
+  font-size: 14px; font-weight: 600; font-family: inherit; color: #64748b; border-bottom: 3px solid transparent;
+  transition: all .15s; }
+.tab-btn:hover { background: #eff6ff; color: #1d4ed8; }
+.tab-btn.active { background: #fff; color: #1d4ed8; border-bottom-color: #1d4ed8; }
+.tab-btn .gender-badge { display: inline-block; width: 22px; height: 22px; border-radius: 50%;
+  font-size: 11px; line-height: 22px; margin-right: 4px; }
+.tab-btn.boy .gender-badge { background: #dbeafe; color: #1d4ed8; }
+.tab-btn.girl .gender-badge { background: #fce7f3; color: #be185d; }
+.tab-btn .progress-dot { font-size: 11px; margin-top: 3px; color: #94a3b8; }
+.tab-btn.active .progress-dot { color: #64748b; }
+.tab-btn.done .progress-dot { color: #16a34a; }
+
+.tab-panel { display: none; background: #fff; border-radius: 0 0 12px 12px; box-shadow: 0 1px 6px rgba(0,0,0,.08); padding: 28px; margin-bottom: 20px; }
+.tab-panel.active { display: block; }
+
+/* 유아 정보 */
+.child-info { border-radius: 8px; padding: 18px; margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 16px; }
+.child-info.boy { background: #eff6ff; border: 1px solid #bfdbfe; }
+.child-info.girl { background: #fdf2f8; border: 1px solid #fbcfe8; }
+.info-group { flex: 1; min-width: 160px; }
+.info-group label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+.info-group input, .info-group select { width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px;
+  font-size: 14px; font-family: inherit; }
+.info-group input:focus, .info-group select:focus { outline: 2px solid #1d4ed8; border-color: transparent; }
+.gender-fixed { padding: 8px 12px; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; color: #64748b; }
+
+/* 리커트 테이블 */
+.section-desc { font-size: 13px; color: #475569; background: #f8fafc; padding: 12px 14px; border-radius: 6px;
+  border-left: 4px solid #1d4ed8; margin-bottom: 18px; line-height: 1.7; }
+.likert-wrap { overflow-x: auto; }
+table.likert { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.likert thead th { background: #1e40af; color: #fff; padding: 10px 6px; text-align: center; font-size: 12px; line-height: 1.4; }
+table.likert thead th.q-col { text-align: left; min-width: 36px; }
+table.likert thead th.content-col { text-align: left; min-width: 280px; }
+table.likert tbody tr:nth-child(even) { background: #f8fafc; }
+table.likert tbody tr:hover { background: #eff6ff; }
+table.likert tbody tr.missing { background: #fef2f2; }
+table.likert td { padding: 10px 8px; border-bottom: 1px solid #e2e8f0; text-align: center; vertical-align: middle; }
+table.likert td.q-col { font-weight: 600; color: #64748b; font-size: 12px; }
+table.likert td.content-col { text-align: left; line-height: 1.5; color: #1e293b; }
+table.likert td label { cursor: pointer; display: block; }
+table.likert td input[type=radio] { width: 18px; height: 18px; accent-color: #1d4ed8; cursor: pointer; }
+
+/* 다음 탭 버튼 */
+.next-tab-btn { display: block; width: 100%; margin-top: 20px; padding: 12px; background: #f1f5f9; border: none;
+  border-radius: 8px; font-size: 14px; font-weight: 600; color: #475569; cursor: pointer; font-family: inherit; }
+.next-tab-btn:hover { background: #e2e8f0; }
+
+/* 에러 */
+.error-msg { background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; border-radius: 8px;
+  padding: 12px 16px; font-size: 13px; display: none; margin-top: 12px; }
+.error-msg.show { display: block; }
+
+/* 제출 버튼 */
+.submit-wrap { text-align: center; padding: 24px 0; }
+.btn-submit { background: #15803d; color: #fff; border: none; border-radius: 10px; padding: 16px 48px;
+  font-size: 17px; font-weight: 700; cursor: pointer; font-family: inherit; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+.btn-submit:hover { background: #166534; }
+.btn-submit:disabled { background: #94a3b8; cursor: not-allowed; }
+.submit-hint { font-size: 12px; color: #94a3b8; margin-top: 8px; }
+
+/* 완료 화면 */
+.done-screen { text-align: center; padding: 48px 20px; }
+.done-screen .icon { font-size: 64px; margin-bottom: 20px; }
+.done-screen h2 { font-size: 24px; color: #15803d; margin-bottom: 12px; }
+.done-screen p { color: #475569; line-height: 1.8; }
+
+/* 오류 화면 */
+.error-screen { text-align: center; padding: 48px 20px; }
+.error-screen .icon { font-size: 64px; margin-bottom: 20px; }
+
+@media (max-width:600px) {
+  .card { padding: 16px; }
+  table.likert thead th.content-col { min-width: 180px; }
+  .tabs { flex-wrap: nowrap; overflow-x: auto; }
+  .tab-btn { min-width: 70px; padding: 12px 4px; font-size: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">경기대학교 일반대학원 유아교육전공 &nbsp;|&nbsp; 박사과정 최현주 연구자</div>
+
+<div class="container" id="appContainer">
+  <div class="card"><div style="text-align:center;padding:40px 0;color:#94a3b8">로딩 중...</div></div>
+</div>
+
+<script>
+// ── 설문 문항 ──────────────────────────────────────────────────
+const QUESTIONS = [
+  '유아는 디지털 기기와의 상호작용 속에서 새로운 놀이 방식이나 활동(예: AI 스피커로 이야기 만들기, 태블릿으로 친구와 규칙 정하기 등)을 만들어내고 조율한다.',
+  '유아는 디지털 기기의 다양한 반응을 탐색하며 새로운 사용 방식을 시도하는 과정에서 새로운 사용 방식을 시도한다.',
+  '유아는 디지털 기기를 활용하여 필요한 정보를 찾으려고 시도(예: 관심 있는 곤충 이미지 검색, 오늘의 날씨와 미세먼지 알아보기 등)한다.',
+  '유아는 디지털 기기에서 얻은 정보를 친구나 기기와의 상호작용 속에서 놀이에 반영(예: 태블릿으로 본 공룡 사진을 보고 친구와 공룡의 특징에 대해 이야기하며 블록으로 공룡 놀이를 만든다)하거나 확장한다.',
+  '유아는 디지털 환경 속에서 자신이 알고 싶은 정보에 대해 친구나 기기에게 질문하며 탐색한다.',
+  '유아는 디지털 콘텐츠의 내용이 사실인지 친구나 기기와 함께 의논하며 판단한다.',
+  '유아는 디지털 콘텐츠에 대한 자신의 생각을 경험에 비추어 말하거나, 친구가 기기의 생각과 비교해 본다.',
+  '유아는 디지털 도구의 반응이나 기능을 탐색하며, 문제를 독창적으로 해결·조율한다.',
+  '유아는 디지털 놀이 중 새로운 놀이 방식을 제안하거나 놀이를 확장한다.',
+  '유아는 디지털 도구와의 상호작용 속에서 발생한 문제를 탐색하고, 기술의 반응을 살펴보며 해결 방법을 구성한다.',
+  '유아는 디지털 환경에서 기술과 함께 활동을 구성하고, 참여 과정을 주도하거나 확장한다.',
+  '유아는 온·오프라인에서 자신의 의견이나 생각을 자신 있게 표현한다.',
+  '유아는 디지털 도구(예: 그림 앱, 음성 녹음)를 사용하여 자신의 생각과 감정을 표현한다.',
+  '유아는 디지털 환경에서 다양한 방식(예: 음성, 이미지, 영상 등으로)으로 소통한다.',
+  '유아는 친구나 디지털 기기가 생성한 이미지나 소리의 의미를 이해하고, 이에 대해 말하거나 반응으로 표현한다.',
+  '디지털 환경에서 개인정보가 다른 사람의 권리와 연결되어 있음을 인식한다.',
+  '유아는 개인정보 보호와 관련된 상황에서 규칙을 지키려 하며, 교사나 친구와 그 이유에 대해 이야기한다.',
+  '유아는 자신의 개인정보를 디지털 공간에서 함부로 타인과 공유하지 않는다.',
+  '유아는 디지털 공간에서 정보와 사람과 연결된다는 점을 이해하며, 타인의 개인정보를 조심스럽게 다룬다.',
+  '유아는 디지털 기기의 응답 속도나 흐름에 맞춰 자신의 속도나 반응을 조절하며 놀이를 유연하게 이어간다(예: 소리가 늦게 나와도 기다리며 놀이를 지속한다).',
+  '유아는 디지털 놀이 중 사용 제한이나 종료 알림을 들으면, 약속을 지키려 하며, 감정을 조절해 스스로 놀이를 멈춘다(예: 타이머가 울리면 교사 도움 없이도 기기를 내려놓는다).',
+  '유아는 디지털 공간에서 AI나 친구와 상호작용할 때 바르고 고운 말을 사용하려 한다(예: 인공지능 스피커에도 예의 있게 말하거나, 친구의 말투를 따라 하지 않고 자신의 방식으로 표현하려 한다).',
+  '유아는 친구의 실수나, 디지털 기기의 오작동(예: AI가 엉뚱한 말을 하거나 친구가 그림을 잘못 저장한 경우)을 너그럽게 받아들이고, 상황에 따라 웃거나 함께 다시 시도하려 한다.',
+  '유아는 디지털 놀이 시 친구와 서로 도와가며 참여한다.',
+  '유아는 디지털 놀이 시 다른 사람들(교사, 친구)의 의견을 경청하고 자신의 생각과 조율하려 한다.',
+  '유아는 디지털 활동 중 친구 또는 기기의 반응을 주의 깊게 관찰하고, 공감이나 위로의 말을 건네거나 행동으로 표현한다.'
+];
+
+const SCALE = ['전혀<br>그렇지<br>않다', '그렇지<br>않다', '보통<br>이다', '그렇다', '매우<br>그렇다'];
+
+const CHILDREN = [
+  { index: 0, label: '남아 1', gender: '남', cls: 'boy' },
+  { index: 1, label: '남아 2', gender: '남', cls: 'boy' },
+  { index: 2, label: '여아 1', gender: '여', cls: 'girl' },
+  { index: 3, label: '여아 2', gender: '여', cls: 'girl' }
+];
+
+// ── 상태 ───────────────────────────────────────────────────────
+let token = '';
+let surveyInfo = null;
+let formData = {
+  children: [
+    { name: '', age: '만3세', answers: {} },
+    { name: '', age: '만3세', answers: {} },
+    { name: '', age: '만3세', answers: {} },
+    { name: '', age: '만3세', answers: {} }
+  ]
+};
+let activeTab = 0;
+
+// ── 초기화 ─────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+  const parts = window.location.pathname.split('/');
+  token = parts[parts.length - 1];
+  if (!token || token === 'index.html') {
+    renderError('유효하지 않은 설문 링크입니다.');
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/survey-info/${token}`);
+    const data = await res.json();
+    if (!res.ok) { renderError(data.error || '오류가 발생했습니다.'); return; }
+    surveyInfo = data;
+    if (data.completed) { renderDone(true); return; }
+    renderSurvey();
+  } catch (e) {
+    renderError('서버 연결에 실패했습니다.');
+  }
+});
+
+// ── 설문 렌더링 ────────────────────────────────────────────────
+function renderSurvey() {
+  const app = document.getElementById('appContainer');
+  app.innerHTML = `
+    <div class="card" style="padding:20px 28px">
+      <h2 style="margin-bottom:8px">유아 디지털 역량 설문조사</h2>
+      <p style="color:#64748b;font-size:14px">${surveyInfo.school} ${surveyInfo.grade} &nbsp;·&nbsp; ${surveyInfo.teacherName} 선생님</p>
+    </div>
+
+    <div class="notice-box">
+      <p>※ 다음 문항들은 유아의 디지털 역량을 알아보기 위한 것입니다. 학급 내 자유놀이시간에 관찰한 유아의 행동을 바탕으로 가장 적합한 칸에 응답해 주십시오.</p>
+      <p>※ 학급 출석부의 앞, 중간, 뒷 부분에서 남아 2명, 여아 2명을 무작위로 선정해 주십시오.</p>
+      <p>※ 담임교사가 2명 이상일 경우, 메이트 교사와 대상 유아가 중복되지 않도록 유의해 주십시오.</p>
+    </div>
+
+    <div class="tabs" id="tabBtns">
+      ${CHILDREN.map(c => `
+        <button class="tab-btn ${c.cls} ${c.index === 0 ? 'active' : ''}" onclick="switchTab(${c.index})" id="tabBtn${c.index}">
+          <span class="gender-badge">${c.gender}</span>${c.label}
+          <div class="progress-dot" id="dot${c.index}">0 / ${QUESTIONS.length}</div>
+        </button>
+      `).join('')}
+    </div>
+
+    ${CHILDREN.map(c => `
+      <div class="tab-panel ${c.index === 0 ? 'active' : ''}" id="panel${c.index}">
+        <div class="child-info ${c.cls}">
+          <div class="info-group">
+            <label>${c.label} 이름 <span style="color:#dc2626">*</span> <span style="font-weight:400;font-size:11px;color:#94a3b8">(연구자가 코딩 후 폐기)</span></label>
+            <input type="text" id="name${c.index}" placeholder="이름 입력" oninput="formData.children[${c.index}].name=this.value">
+          </div>
+          <div class="info-group">
+            <label>성별</label>
+            <div class="gender-fixed">${c.gender}아</div>
+          </div>
+          <div class="info-group">
+            <label>연령 <span style="color:#dc2626">*</span></label>
+            <select id="age${c.index}" onchange="formData.children[${c.index}].age=this.value">
+              <option>만3세</option>
+              <option>만4세</option>
+              <option>만5세</option>
+            </select>
+          </div>
+        </div>
+
+        <p class="section-desc">다음 문항들은 유아의 디지털 역량을 알아보기 위한 것입니다. 가장 적합하다고 생각되는 칸에 표시해 주십시오.</p>
+
+        <div class="likert-wrap">
+          <table class="likert" id="table${c.index}">
+            <thead>
+              <tr>
+                <th class="q-col">NO</th>
+                <th class="content-col">내 용</th>
+                ${SCALE.map(s => `<th style="min-width:52px">${s}</th>`).join('')}
+              </tr>
+            </thead>
+            <tbody>
+              ${QUESTIONS.map((q, qi) => `
+                <tr id="row${c.index}_${qi}">
+                  <td class="q-col">${qi+1}</td>
+                  <td class="content-col">${q}</td>
+                  ${[1,2,3,4,5].map(v => `
+                    <td><label><input type="radio" name="c${c.index}_q${qi}" value="${v}"
+                      onchange="setAnswer(${c.index},${qi},${v})"></label></td>
+                  `).join('')}
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        ${c.index < 3 ? `<button class="next-tab-btn" onclick="switchTab(${c.index+1})">다음: ${CHILDREN[c.index+1].label} →</button>` : ''}
+      </div>
+    `).join('')}
+
+    <div class="error-msg" id="globalErr"></div>
+
+    <div class="submit-wrap">
+      <button class="btn-submit" id="submitBtn" onclick="submitSurvey()">설문 최종 제출</button>
+      <p class="submit-hint">모든 탭의 응답(26문항 × 4명)을 완료한 후 제출해 주세요.</p>
+    </div>
+  `;
+  updateAllDots();
+}
+
+function switchTab(idx) {
+  activeTab = idx;
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i === idx));
+  document.querySelectorAll('.tab-panel').forEach((p,i) => p.classList.toggle('active', i === idx));
+  window.scrollTo(0, 0);
+}
+
+function setAnswer(childIdx, qIdx, val) {
+  formData.children[childIdx].answers[String(qIdx)] = val;
+  const row = document.getElementById(`row${childIdx}_${qIdx}`);
+  if (row) row.classList.remove('missing');
+  updateDot(childIdx);
+}
+
+function updateDot(childIdx) {
+  const cnt = Object.keys(formData.children[childIdx].answers).length;
+  const dot = document.getElementById(`dot${childIdx}`);
+  const btn = document.getElementById(`tabBtn${childIdx}`);
+  if (dot) {
+    dot.textContent = `${cnt} / ${QUESTIONS.length}`;
+    if (cnt === QUESTIONS.length && formData.children[childIdx].name) {
+      dot.textContent = '✓ 완료';
+      dot.style.color = '#16a34a';
+      btn.classList.add('done');
+    } else {
+      dot.style.color = '';
+      btn.classList.remove('done');
+    }
+  }
+}
+
+function updateAllDots() {
+  CHILDREN.forEach(c => updateDot(c.index));
+}
+
+// ── 제출 ──────────────────────────────────────────────────────
+async function submitSurvey() {
+  const errEl = document.getElementById('globalErr');
+  errEl.classList.remove('show');
+
+  // 검증
+  for (const c of CHILDREN) {
+    const child = formData.children[c.index];
+    if (!child.name.trim()) {
+      switchTab(c.index);
+      errEl.textContent = `${c.label}의 이름을 입력해 주세요.`;
+      errEl.classList.add('show');
+      document.getElementById(`name${c.index}`).focus();
+      return;
+    }
+    for (let qi = 0; qi < QUESTIONS.length; qi++) {
+      if (!child.answers[String(qi)]) {
+        switchTab(c.index);
+        errEl.textContent = `${c.label}: ${qi+1}번 문항에 응답해 주세요.`;
+        errEl.classList.add('show');
+        const row = document.getElementById(`row${c.index}_${qi}`);
+        if (row) { row.classList.add('missing'); row.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+        return;
+      }
+    }
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = '제출 중...';
+
+  const responses = CHILDREN.map(c => ({
+    childIndex: c.index,
+    childName: formData.children[c.index].name,
+    gender: c.gender,
+    age: formData.children[c.index].age,
+    answers: formData.children[c.index].answers
+  }));
+
+  try {
+    const res = await fetch('/api/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, responses })
+    });
+    const data = await res.json();
+    if (data.success) {
+      renderDone(false);
+    } else {
+      errEl.textContent = data.error || '제출에 실패했습니다.';
+      errEl.classList.add('show');
+      btn.disabled = false;
+      btn.textContent = '설문 최종 제출';
+    }
+  } catch (e) {
+    errEl.textContent = '오류가 발생했습니다: ' + e.message;
+    errEl.classList.add('show');
+    btn.disabled = false;
+    btn.textContent = '설문 최종 제출';
+  }
+}
+
+// ── 완료/오류 화면 ────────────────────────────────────────────
+function renderDone(alreadyDone) {
+  document.getElementById('appContainer').innerHTML = `
+    <div class="card done-screen">
+      <div class="icon">🎉</div>
+      <h2>${alreadyDone ? '이미 제출된 설문입니다.' : '설문이 완료되었습니다!'}</h2>
+      <p>${alreadyDone ? '본 설문 링크는 이미 사용되었습니다.' : '소중한 시간을 내어 설문에 참여해 주셔서 진심으로 감사드립니다.'}</p>
+      ${surveyInfo ? `<p style="margin-top:10px;font-size:13px;color:#94a3b8">${surveyInfo.school} ${surveyInfo.grade} · ${surveyInfo.teacherName} 선생님</p>` : ''}
+      <p style="margin-top:24px;font-size:13px;color:#94a3b8">경기대학교 일반대학원 유아교육전공 | 박사과정 최현주</p>
+    </div>`;
+}
+
+function renderError(msg) {
+  document.getElementById('appContainer').innerHTML = `
+    <div class="card error-screen">
+      <div class="icon">⚠️</div>
+      <h2 style="color:#dc2626;margin-bottom:12px">접근 불가</h2>
+      <p style="color:#475569">${msg}</p>
+    </div>`;
+}
+</script>
+</body>
+</html>
